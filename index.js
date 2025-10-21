@@ -24,25 +24,27 @@ groceryList.forEach(item => {
     items.push({item, row: 0, col: 0})
 });
 
-function assignRandomPositions(objects, maxRows, maxCols) {
-    if (objects.length > maxCols * maxRows) {
+function assignRandomPositions(items, maxRows, maxCols) {
+    if (items.length > maxCols * maxRows * 3) {
         return null;
     }
-    
-    const usedPositions = new Set();
-    const itemsMap = objects.map(obj => {
-        let col, row, position;
+
+    // allows three items per shelf
+    const positionCounts = {};
+
+    return items.map(item => {
+        let col;
+        let row;
+        let position;
         do {
             col = Math.floor(Math.random() * maxCols);
             row = Math.floor(Math.random() * maxRows);
             position = `${col},${row}`;
-        } while (usedPositions.has(position));
-        
-        usedPositions.add(position);
-        return { ...obj, col, row };
+        } while ((positionCounts[position] || 0) >= 3);
+
+        positionCounts[position] = (positionCounts[position] || 0) + 1;
+        return { ...item, col, row };
     });
-    // console.log('map:', itemsMap)
-    return itemsMap;
 }
 
 for (let i = 0; i < rows; i++) {
