@@ -6,16 +6,24 @@ const draggingImage = document.querySelector('.dragging-image');
 const rows = 5;
 const cols = 3;
 
+let isPaused = false;
+
+let numberOfMoves = 0;
+
 const groceryList = [
     'red', 'red', 'red', 
     'green', 'green', 'green', 
     'blue', 'blue', 'blue',
     'yellow','yellow','yellow',
     'pink', 'pink', 'pink',
-    'purple','purple','purple'
+    'purple','purple','purple',
+    'orange', 'orange', 'orange',
+    'brown', 'brown', 'brown',
+    'white', 'white', 'white'
 ];
 let items = [];
-let itemInHand = {}
+let itemInHand = {};
+let originalItem = {};
 
 groceryList.forEach(item => {
     const image = document.createElement('img');
@@ -47,38 +55,21 @@ function assignRandomPositions(items, maxRows, maxCols) {
     });
 }
 
-for (let i = 0; i < rows; i++) {
-    const row = document.createElement('tr');
+function createTable(){
 
-    for (let j = 0; j < cols; j++) {
-        const cell = document.createElement('td');
-        row.appendChild(cell);
-
-        cell.addEventListener('mouseover', function() {
-            // console.log('drop item', `row: ${i+1}| col: ${j+1}`)
-            if(isDragging){
-                itemInHand.row = i;
-                itemInHand.col = j;
-            }
-        });
+    for (let i = 0; i < rows; i++) {
+        const row = document.createElement('tr');
         
-        cell.addEventListener('mouseup', function() {
-            if(!cell.classList.contains('full')){
-
-                isDragging = false;
-                placeOnShelf(itemInHand)
-                itemInHand = {}
-                draggingImage.classList.add('hidden');
-            }
-                
-            checkRoomOnShelf(cell);
-            checkSorted(cell);
-        });
+        for (let j = 0; j < cols; j++) {
+            const cell = document.createElement('td');
+            row.appendChild(cell);
+        }
+        
+        table.appendChild(row);
     }
-
-    table.appendChild(row);
 }
-
+createTable();
+    
 container.appendChild(table);
 const groceryMap = assignRandomPositions(items, rows, cols)
 
@@ -89,29 +80,70 @@ groceryMap.forEach(item => {
 });
 
 function placeOnShelf(item){
+    if (!item || !item.item || item.row === undefined || item.col === undefined) {
+        console.log('missing item:', item);
+        return;
+    }
     const row = table.rows[item.row];
     const cell = row.cells[item.col];
+    if (cell.classList.contains('full') || cell.classList.contains('completed')) {
+        // Revert to original position
+        item.row = originalItem.row;
+        item.col = originalItem.col;
+    }
     const image = document.createElement('img');
     image.src = `img/${item.item}.png`;
     image.className = 'grocery-item';
     cell.appendChild(image)
 
     image.addEventListener('mousedown', function(e) {
+        if (isPaused) return;
+
+        // allows to pick up items not on the far right of the cell
+        e.preventDefault();
+        
         // dont let player pick up from sorted shelves
         if(cell.classList.contains('completed') || isDragging){ return; }
 
+        document.body.style.cursor = 'grabbing';
+
         isDragging = true;
-        // console.log('pick up:', item.item)
         itemInHand = item;
+        //save item location if it needs to be sent back
+        originalItem = {...item}
         draggingImage.classList.remove('hidden');
         draggingImage.src = `img/${itemInHand.item}.png`;
         draggingImage.style.cursor = 'grabbing';
+        draggingImage.style.left = e.clientX - 25 + 'px';
+        draggingImage.style.top = e.clientY - 25 + 'px';
         this.remove();
-        // checkRoomOnShelf(cell)
     });
 }
 
+document.addEventListener('mouseup', function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    draggingImage.classList.add('hidden');
+    document.body.style.cursor = '';
+    const cell = document.elementFromPoint(e.clientX, e.clientY).closest('td');
+    checkRoomOnShelf(cell)
+    if (cell && !cell.classList.contains('full') && !cell.classList.contains('completed')) {
+        itemInHand.row = parseInt(cell.parentNode.rowIndex);
+        itemInHand.col = cell.cellIndex;
+        console.log(itemInHand)
+        placeOnShelf(itemInHand);
+        checkSorted(cell)
+        numberOfMoves++;
+    } else {
+        //return to original position
+        placeOnShelf(originalItem);
+    }
+    itemInHand = {};
+});
+
 document.addEventListener('mousemove', function(e) {
+    e.preventDefault();
+
     if(isDragging){
         draggingImage.style.left = (e.clientX - 25) + 'px';
         draggingImage.style.top = (e.clientY - 25) + 'px';
@@ -119,6 +151,7 @@ document.addEventListener('mousemove', function(e) {
 });
 
 function checkRoomOnShelf(shelf){
+    if(!shelf) return;
     if(shelf.childElementCount === 3){
         // console.log('shelf full')
         shelf.classList.add('full')
@@ -129,6 +162,7 @@ function checkRoomOnShelf(shelf){
 }
 
 function checkSorted(shelf){
+    console.log(shelf)
     const firstItem = shelf.children[0];
     if(shelf.children.length === 3 && Array.from(shelf.children).every(item => item.src === firstItem.src)){
         shelf.classList.add('completed');
@@ -140,11 +174,13 @@ function checkAllShelves(){
     let sorted = 0;
     const shelves = document.querySelectorAll('td');
     shelves.forEach(shelf => {
-        if(shelf.classList.contains('completed') && shelf.classList.contains('full')){ sorted++; }
+        if(shelf.classList.contains('completed')){ sorted++; }
     });
     if(sorted === groceryList.length/3){
         // console.log('you win!');
         document.querySelector('.win-msg').classList.remove('hidden')
+        document.querySelector('.moves-count').textContent+=numberOfMoves;
+        document.querySelector('.time').textContent = document.querySelector('.timer').textContent;
         stopTimer();
     }
 }
@@ -154,20 +190,24 @@ reloadButton.addEventListener('click', () =>{
     location.reload();
 });
 
+
+
+
 // ------------ timer -------------------
 
 // const pauseScreen = document.querySelector('.pause-container');
 const pauseButton = document.querySelector('.pause-button');
 const resumeButton = document.querySelector('.resume-button');
 pauseButton.addEventListener('click', () => {
+    isPaused = true;
     // pauseScreen.classList.toggle('hidden');
     stopTimer();
     pauseButton.disabled = true;
     resumeButton.disabled = false;
 });
 
-// todo - stop all mouse events
 resumeButton.addEventListener('click', () => {
+    isPaused = false;
     startTimer();
     resumeButton.disabled = true;
     pauseButton.disabled = false;

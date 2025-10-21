@@ -3,12 +3,7 @@ body{
     overflow: hidden;
     image-rendering: pixelated;
     user-select: none;
-    /* background-color: #e4cead; */
-    background-image: url('img/store.png');
-    background-repeat: no-repeat;
-    background-size:cover;
-    image-rendering: auto;
-    backdrop-filter: blur(5px);
+    background-color: #e4cead;
 }
 
 .hidden{
@@ -43,6 +38,10 @@ td{
     /* image-rendering: pixelated; */
     background-size: cover;
 }
+
+/* td.completed{
+    background-color: rgba(0, 0, 0, 0.458) !important;
+} */
 
 table, td{
     border: 7px solid rgb(108 72 54);
