@@ -3,7 +3,12 @@ body{
     overflow: hidden;
     image-rendering: pixelated;
     user-select: none;
-    background-color: #e4cead;
+    /* background-color: #e4cead; */
+    background-image: url('img/store.png');
+    background-repeat: no-repeat;
+    background-size:cover;
+    image-rendering: auto;
+    backdrop-filter: blur(5px);
 }
 
 .hidden{
@@ -49,6 +54,10 @@ table, td{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    border: 2px solid black;
+    background-color: rgba(0, 0, 0, 0.662);
+    color: white;
+    padding: 10px;
 }
 
 .win-msg{
