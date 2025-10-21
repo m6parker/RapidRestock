@@ -11,8 +11,8 @@ const groceryList = [
     'green', 'green', 'green', 
     'blue', 'blue', 'blue',
     'yellow','yellow','yellow',
-    'pink', 'pink', 'pink'
-    // 'purple','purple','purple'
+    'pink', 'pink', 'pink',
+    'purple','purple','purple'
 ];
 let items = [];
 let itemInHand = {}
