@@ -145,5 +145,63 @@ function checkAllShelves(){
     if(sorted === groceryList.length/3){
         // console.log('you win!');
         document.querySelector('.win-msg').classList.remove('hidden')
+        stopTimer();
     }
+}
+
+const reloadButton = document.querySelector('.play-button');
+reloadButton.addEventListener('click', () =>{
+    location.reload();
+});
+
+// ------------ timer -------------------
+
+// const pauseScreen = document.querySelector('.pause-container');
+const pauseButton = document.querySelector('.pause-button');
+const resumeButton = document.querySelector('.resume-button');
+pauseButton.addEventListener('click', () => {
+    // pauseScreen.classList.toggle('hidden');
+    stopTimer();
+    pauseButton.disabled = true;
+    resumeButton.disabled = false;
+});
+
+// todo - stop all mouse events
+resumeButton.addEventListener('click', () => {
+    startTimer();
+    resumeButton.disabled = true;
+    pauseButton.disabled = false;
+});
+
+let startTime;
+let timerInterval;
+let elapsedTime = 0;
+const timerDisplay = document.querySelector('.timer');
+
+startTimer();
+
+function formatTime(ms) {
+    let date = new Date(ms);
+    let hours = date.getUTCHours().toString().padStart(2, '0');
+    let minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    let seconds = date.getUTCSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function startTimer() {
+    startTime = Date.now() - elapsedTime;
+    timerInterval = setInterval(function() {
+        elapsedTime = Date.now() - startTime;
+        timerDisplay.textContent = formatTime(elapsedTime);
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    elapsedTime = 0;
+    timerDisplay.textContent = '00:00:00';
 }
