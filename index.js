@@ -21,6 +21,7 @@ const groceryList = [
     'orange', 'orange', 'orange',
     'brown', 'brown', 'brown',
     'white', 'white', 'white'
+    // 'strawberry', 'strawberry', 'strawberry'
 ];
 let items = [];
 let itemInHand = {};
