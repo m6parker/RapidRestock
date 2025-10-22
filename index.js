@@ -1,6 +1,7 @@
 const container = document.querySelector('.shelf-container');
+const backgroundContainerLeft = document.querySelector('.left-shelf-container');
+const backgroundContainerRight = document.querySelector('.right-shelf-container');
 
-const table = document.createElement('table');
 const draggingImage = document.querySelector('.dragging-image');
 
 const rows = 5;
@@ -55,6 +56,7 @@ function assignRandomPositions(items, maxRows, maxCols) {
     });
 }
 
+const table = document.createElement('table');
 function createTable(){
 
     for (let i = 0; i < rows; i++) {
@@ -62,15 +64,37 @@ function createTable(){
         
         for (let j = 0; j < cols; j++) {
             const cell = document.createElement('td');
+            cell.className = 'mainCell';
             row.appendChild(cell);
         }
         
         table.appendChild(row);
     }
+    container.appendChild(table);
+    // backgroundContainerLeft.appendChild(table)
+    // backgroundContainerRight.appendChild(table)
 }
 createTable();
-    
-container.appendChild(table);
+
+// // background tables
+// const tableLeft = document.createElement('table');
+// function createTableLeft(){
+
+//     for (let i = 0; i < rows-2; i++) {
+//         const row = document.createElement('tr');
+        
+//         for (let j = 0; j < cols-1; j++) {
+//             const cell = document.createElement('td');
+//             row.appendChild(cell);
+//         }
+        
+//         tableLeft.appendChild(row);
+//     }
+//     backgroundContainerLeft.appendChild(tableLeft);
+// }
+// createTableLeft();
+
+
 const groceryMap = assignRandomPositions(items, rows, cols)
 
 // place items on the shelves
@@ -169,7 +193,7 @@ function checkSorted(shelf){
 
 function checkAllShelves(){
     let sorted = 0;
-    const shelves = document.querySelectorAll('td');
+    const shelves = document.querySelectorAll('.mainCell');
     shelves.forEach(shelf => {
         if(shelf.classList.contains('completed')){ sorted++; }
     });
