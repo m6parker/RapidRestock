@@ -130,7 +130,6 @@ document.addEventListener('mouseup', function(e) {
     if (cell && !cell.classList.contains('full') && !cell.classList.contains('completed')) {
         itemInHand.row = parseInt(cell.parentNode.rowIndex);
         itemInHand.col = cell.cellIndex;
-        console.log(itemInHand)
         placeOnShelf(itemInHand);
         checkSorted(cell)
         numberOfMoves++;
@@ -153,7 +152,6 @@ document.addEventListener('mousemove', function(e) {
 function checkRoomOnShelf(shelf){
     if(!shelf) return;
     if(shelf.childElementCount === 3){
-        // console.log('shelf full')
         shelf.classList.add('full')
         checkSorted(shelf)
     }else{
@@ -162,7 +160,6 @@ function checkRoomOnShelf(shelf){
 }
 
 function checkSorted(shelf){
-    console.log(shelf)
     const firstItem = shelf.children[0];
     if(shelf.children.length === 3 && Array.from(shelf.children).every(item => item.src === firstItem.src)){
         shelf.classList.add('completed');
@@ -191,9 +188,9 @@ reloadButton.addEventListener('click', () =>{
 });
 
 
-
-
-// ------------ timer -------------------
+// --------------------------------------
+// |              timer                 |
+// --------------------------------------
 
 // const pauseScreen = document.querySelector('.pause-container');
 const pauseButton = document.querySelector('.pause-button');
