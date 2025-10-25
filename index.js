@@ -4,9 +4,16 @@ const backgroundContainerRight = document.querySelector('.right-shelf-container'
 
 const draggingImage = document.querySelector('.dragging-image');
 
-const DRAGGING_DISTANCE = 50;
+const DRAGGING_DISTANCE = 100;
+let level = 1;
 const rows = 5;
 const cols = 3;
+let gameState = {
+    level: level,
+    rows: rows,
+    cols: cols,
+    theme: 'cakes'
+}
 
 let isPaused = false;
 
@@ -41,7 +48,7 @@ let originalItem = {};
 
 groceryList.forEach(item => {
     const image = document.createElement('img');
-    image.src = `img/cakes/${item}.png`;
+    image.src = `img/${gameState.theme}/${item}.png`;
     image.className = 'grocery-item';
     items.push({item, row: 0, col: 0})
 });
@@ -129,7 +136,7 @@ function placeOnShelf(item){
         item.col = originalItem.col;
     }
     const image = document.createElement('img');
-    image.src = `img/cakes/${item.item}.png`;
+    image.src = `img/${gameState.theme}/${item.item}.png`;
     image.className = 'grocery-item';
     cell.appendChild(image)
 
@@ -149,7 +156,7 @@ function placeOnShelf(item){
         //save item location if it needs to be sent back
         originalItem = {...item}
         draggingImage.classList.remove('hidden');
-        draggingImage.src = `img/cakes/${itemInHand.item}.png`;
+        draggingImage.src = `img/${gameState.theme}/${itemInHand.item}.png`;
         draggingImage.style.cursor = 'grabbing';
         draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
         draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
