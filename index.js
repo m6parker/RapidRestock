@@ -238,6 +238,7 @@ reloadButton.addEventListener('click', () =>{
     gameState.level++;
     gameState.rows = 5;
     gameState.list = potionList;
+    items = []
     setGame();
 
     //remove win popup
