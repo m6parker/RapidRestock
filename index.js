@@ -263,6 +263,9 @@ reloadButton.addEventListener('click', () =>{
     numberOfMoves = 0;
     winPopup.classList.add('hidden');
 
+    document.querySelectorAll('table').forEach(table => table.classList.add('themeTwo'));
+    document.querySelectorAll('td').forEach(td => td.classList.add('themeTwo'));
+
     resetTimer();
     startTimer();
 });

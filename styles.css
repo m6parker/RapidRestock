@@ -45,18 +45,25 @@ img{
 table td{
     width: 310px;
     height: 135px;
-    background-image: url('img/wood.png');
+    background-image: url('img/wood2.png');
     background-repeat: no-repeat;
     /* image-rendering: pixelated; */
     background-size: cover;
 }
 
+table.themeTwo td.themeTwo{
+    background-image: url('img/wood1.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 7px solid rgb(108 72 54);
+}
+
 /* td.completed{
     background-color: rgba(0, 0, 0, 0.458) !important;
-} */
-
-table, td{
-    border: 7px solid rgb(108 72 54);
+    } */
+    
+    table, td{
+    border: 7px solid rgb(146 125 85);
     border-collapse: collapse;
     margin: 10px;
 }
