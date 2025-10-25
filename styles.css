@@ -10,6 +10,11 @@ body{
     display: none !important;
 }
 
+img{
+    image-rendering: auto;
+
+}
+
 .container{
     display: flex;
     justify-content: center;
@@ -21,7 +26,7 @@ body{
 }
 
 .grocery-item{
-    height: 66px;
+    height: 110px;
     width: 66px;
 }
 
@@ -29,7 +34,7 @@ body{
     position: absolute;
     pointer-events: none;
     width: 100px;
-    height: 100px;
+    height: 160px;
     z-index: 9999;
 }
 

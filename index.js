@@ -4,6 +4,7 @@ const backgroundContainerRight = document.querySelector('.right-shelf-container'
 
 const draggingImage = document.querySelector('.dragging-image');
 
+const DRAGGING_DISTANCE = 50;
 const rows = 5;
 const cols = 3;
 
@@ -12,15 +13,26 @@ let isPaused = false;
 let numberOfMoves = 0;
 
 const groceryList = [
-    'red', 'red', 'red', 
-    'green', 'green', 'green', 
-    'blue', 'blue', 'blue',
-    'yellow','yellow','yellow',
-    'pink', 'pink', 'pink',
-    'purple','purple','purple',
-    'orange', 'orange', 'orange',
-    'brown', 'brown', 'brown',
-    'white', 'white', 'white'
+    'cake1','cake1','cake1',
+    'cake2','cake2','cake2',
+    'cake3','cake3','cake3',
+    'cake4','cake4','cake4',
+    'cake5','cake5','cake5',
+    'cake6','cake6','cake6',
+    // 'green_one','green_one','green_one',
+    // 'green_two','green_two','green_two',
+    // 'pink_one','pink_one','pink_one',
+    // 'orange_one','orange_one','orange_one'
+    // testing 
+    // 'red', 'red', 'red', 
+    // 'green', 'green', 'green', 
+    // 'blue', 'blue', 'blue',
+    // 'yellow','yellow','yellow',
+    // 'pink', 'pink', 'pink',
+    // 'purple','purple','purple',
+    // 'orange', 'orange', 'orange',
+    // 'brown', 'brown', 'brown',
+    // 'white', 'white', 'white'
     // 'strawberry', 'strawberry', 'strawberry'
 ];
 let items = [];
@@ -29,7 +41,7 @@ let originalItem = {};
 
 groceryList.forEach(item => {
     const image = document.createElement('img');
-    image.src = `img/${item}.png`;
+    image.src = `img/cakes/${item}.png`;
     image.className = 'grocery-item';
     items.push({item, row: 0, col: 0})
 });
@@ -117,7 +129,7 @@ function placeOnShelf(item){
         item.col = originalItem.col;
     }
     const image = document.createElement('img');
-    image.src = `img/${item.item}.png`;
+    image.src = `img/cakes/${item.item}.png`;
     image.className = 'grocery-item';
     cell.appendChild(image)
 
@@ -137,10 +149,10 @@ function placeOnShelf(item){
         //save item location if it needs to be sent back
         originalItem = {...item}
         draggingImage.classList.remove('hidden');
-        draggingImage.src = `img/${itemInHand.item}.png`;
+        draggingImage.src = `img/cakes/${itemInHand.item}.png`;
         draggingImage.style.cursor = 'grabbing';
-        draggingImage.style.left = e.clientX - 25 + 'px';
-        draggingImage.style.top = e.clientY - 25 + 'px';
+        draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
+        draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
         this.remove();
     });
 }
@@ -169,8 +181,8 @@ document.addEventListener('mousemove', function(e) {
     e.preventDefault();
 
     if(isDragging){
-        draggingImage.style.left = (e.clientX - 25) + 'px';
-        draggingImage.style.top = (e.clientY - 25) + 'px';
+        draggingImage.style.left = (e.clientX - DRAGGING_DISTANCE) + 'px';
+        draggingImage.style.top = (e.clientY - DRAGGING_DISTANCE) + 'px';
     }
 });
 
