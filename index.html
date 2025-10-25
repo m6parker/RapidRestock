@@ -8,27 +8,29 @@
 </head>
 <body>
 
-    <div class="win-msg hidden">
-        <div>YOU WIN</div>
-        <div class="moves-count"></div>
-        <div class="time">time:</div>
-        <button class="play-button">next level</button>
+    <div class="win-container">
+        <div class="win-msg hidden">
+            <div class="win-level">Level Complete</div>
+            <div class="moves-count"></div>
+            <div class="time">Time:</div>
+            <button class="play-button">Next Level</button>
+        </div>
     </div>
 
     <div class="timer-container">
         <div class="timer">00:00:00</div>
         <div>
             <button class="pause-button">pause</button>
-            <button class="resume-button" disabled>resume</button>
+            <button class="resume-button hidden" disabled>resume</button>
+            <button class="skip-button">skip level</button>
         </div>
+        <div class="level-name"></div>
     </div>
-
-    <div class="level-name"></div>
 
     <img class="dragging-image hidden" src="">
 
     <div class="container">
-        <div class="left-shelf-container">
+        <!-- <div class="left-shelf-container">
             <table>
                 <tr>
                     <td></td>
@@ -39,11 +41,11 @@
                     <td></td>
                 </tr>
             </table>
-        </div>
+        </div> -->
 
         <div class="shelf-container main-shelf"></div>
 
-        <div class="right-shelf-container">
+        <!-- <div class="right-shelf-container">
             <table>
                 <tr>
                     <td></td>   
@@ -58,7 +60,7 @@
                     <td></td>
                 </tr>
             </table>
-        </div>
+        </div> -->
     </div>
 
     <div class="floor"></div>

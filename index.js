@@ -237,9 +237,13 @@ function checkAllShelves(){
     }
 }
 
+//testing
+document.querySelector('.skip-button').addEventListener('click', () => winLevel());
+
 function winLevel(){
     winPopup.classList.remove('hidden')
-    document.querySelector('.moves-count').textContent = `moves: ${numberOfMoves}`;
+    document.querySelector('.win-level').textContent = `Level ${gameState.level} Complete`;
+    document.querySelector('.moves-count').textContent = `Moves: ${numberOfMoves}`;
     document.querySelector('.time').textContent = document.querySelector('.timer').textContent;
     stopTimer();
 }
@@ -283,6 +287,8 @@ pauseButton.addEventListener('click', () => {
     stopTimer();
     pauseButton.disabled = true;
     resumeButton.disabled = false;
+    pauseButton.classList.toggle('hidden')
+    resumeButton.classList.toggle('hidden')
 });
 
 resumeButton.addEventListener('click', () => {
@@ -290,6 +296,8 @@ resumeButton.addEventListener('click', () => {
     startTimer();
     resumeButton.disabled = true;
     pauseButton.disabled = false;
+    pauseButton.classList.toggle('hidden')
+    resumeButton.classList.toggle('hidden')
 });
 
 let startTime;
