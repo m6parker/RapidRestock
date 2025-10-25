@@ -41,16 +41,31 @@ const testList = [
     'white', 'white', 'white'
 ];
 
+// name of directory containing images - also displayed above shelf
+const themes = [
+    'cakes',
+    'potions',
+    'tests',
+];
+
+// which filenames to chose for images
+const imageLists = [
+    cakeList,
+    potionList,
+    testList
+]
+
+// controlling levels
 let gameState = {
     level: level,
     rows: 3,
     cols: 3,
-    theme: 'cakes',
+    theme: themes[level-1],
     list: cakeList
 };
 
 function createGroceryList(groceryList){
-    
+    // create each item image
     groceryList.forEach(item => {
         const image = document.createElement('img');
         image.src = `img/${gameState.theme}/${item}.png`;
@@ -58,7 +73,7 @@ function createGroceryList(groceryList){
         items.push({item, row: 0, col: 0})
     });
 
-    // place items on the shelves
+    // assign items to random row/col and place on the shelves
     const groceryMap = assignRandomPositions(items, gameState.rows, gameState.cols)
     groceryMap.forEach(item => {
         placeOnShelf(item)
@@ -234,11 +249,14 @@ reloadButton.addEventListener('click', () =>{
     // location.reload();
 
     // create new level
-    gameState.theme = 'potions';
     gameState.level++;
+    gameState.theme = themes[gameState.level-1];
     gameState.rows = 5;
-    gameState.list = potionList;
+    gameState.list = imageLists[gameState.level-1];
     items = []
+
+    // todo: create game completed popup
+    if(gameState.level > themes.length){ location.reload(); } //for continuous play
     setGame();
     
     //remove win popup
@@ -262,8 +280,6 @@ pauseButton.addEventListener('click', () => {
     stopTimer();
     pauseButton.disabled = true;
     resumeButton.disabled = false;
-    document.querySelector('.main-table').remove();
-
 });
 
 resumeButton.addEventListener('click', () => {
