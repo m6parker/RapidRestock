@@ -24,6 +24,12 @@ img{
     width: 100vw;
 }
 
+.level-name{
+    color: white;
+    text-align: center;
+    font-size: 50px;
+}
+
 .grocery-item{
     height: 120px;
     width: 100px;

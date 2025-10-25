@@ -1,57 +1,69 @@
 const container = document.querySelector('.shelf-container');
 const backgroundContainerLeft = document.querySelector('.left-shelf-container');
 const backgroundContainerRight = document.querySelector('.right-shelf-container');
-
 const draggingImage = document.querySelector('.dragging-image');
-
+const levelName = document.querySelector('.level-name');
+const winPopup = document.querySelector('.win-msg');
 const DRAGGING_DISTANCE = 100;
-let level = 1;
-const rows = 5;
-const cols = 3;
-let gameState = {
-    level: level,
-    rows: rows,
-    cols: cols,
-    theme: 'cakes'
-}
 
 let isPaused = false;
-
 let numberOfMoves = 0;
+let items = [];
+let itemInHand = {};
+let originalItem = {};
+let level = 1;
 
-const groceryList = [
+const cakeList = [
     'cake1','cake1','cake1',
     'cake2','cake2','cake2',
     'cake3','cake3','cake3',
     'cake4','cake4','cake4',
     'cake5','cake5','cake5',
     'cake6','cake6','cake6',
-    // 'green_one','green_one','green_one',
-    // 'green_two','green_two','green_two',
-    // 'pink_one','pink_one','pink_one',
-    // 'orange_one','orange_one','orange_one'
-    // testing 
-    // 'red', 'red', 'red', 
-    // 'green', 'green', 'green', 
-    // 'blue', 'blue', 'blue',
-    // 'yellow','yellow','yellow',
-    // 'pink', 'pink', 'pink',
-    // 'purple','purple','purple',
-    // 'orange', 'orange', 'orange',
-    // 'brown', 'brown', 'brown',
-    // 'white', 'white', 'white'
-    // 'strawberry', 'strawberry', 'strawberry'
 ];
-let items = [];
-let itemInHand = {};
-let originalItem = {};
 
-groceryList.forEach(item => {
-    const image = document.createElement('img');
-    image.src = `img/${gameState.theme}/${item}.png`;
-    image.className = 'grocery-item';
-    items.push({item, row: 0, col: 0})
-});
+const potionList = [
+    'green_one','green_one','green_one',
+    'green_two','green_two','green_two',
+    'pink_one','pink_one','pink_one',
+    'orange_one','orange_one','orange_one'
+];
+
+const testList = [
+    'red', 'red', 'red', 
+    'green', 'green', 'green', 
+    'blue', 'blue', 'blue',
+    'yellow','yellow','yellow',
+    'pink', 'pink', 'pink',
+    'purple','purple','purple',
+    'orange', 'orange', 'orange',
+    'brown', 'brown', 'brown',
+    'white', 'white', 'white'
+];
+
+let gameState = {
+    level: level,
+    rows: 3,
+    cols: 3,
+    theme: 'cakes',
+    list: cakeList
+};
+
+function createGroceryList(groceryList){
+    
+    groceryList.forEach(item => {
+        const image = document.createElement('img');
+        image.src = `img/${gameState.theme}/${item}.png`;
+        image.className = 'grocery-item';
+        items.push({item, row: 0, col: 0})
+    });
+
+    // place items on the shelves
+    const groceryMap = assignRandomPositions(items, gameState.rows, gameState.cols)
+    groceryMap.forEach(item => {
+        placeOnShelf(item)
+    });
+}
 
 function assignRandomPositions(items, maxRows, maxCols) {
     if (items.length > maxCols * maxRows * 3) {
@@ -76,13 +88,16 @@ function assignRandomPositions(items, maxRows, maxCols) {
     });
 }
 
-const table = document.createElement('table');
 function createTable(){
-
-    for (let i = 0; i < rows; i++) {
+    //remove old table
+    container.firstChild?.remove();
+    
+    const table = document.createElement('table');
+    table.className = 'main-table';
+    for (let i = 0; i < gameState.rows; i++) {
         const row = document.createElement('tr');
         
-        for (let j = 0; j < cols; j++) {
+        for (let j = 0; j < gameState.cols; j++) {
             const cell = document.createElement('td');
             cell.className = 'mainCell';
             row.appendChild(cell);
@@ -91,39 +106,23 @@ function createTable(){
         table.appendChild(row);
     }
     container.appendChild(table);
-    // backgroundContainerLeft.appendChild(table)
-    // backgroundContainerRight.appendChild(table)
 }
-createTable();
 
-// // background tables
-// const tableLeft = document.createElement('table');
-// function createTableLeft(){
+//----------------------------------------------------
+//                  Start Game                      ||
+//----------------------------------------------------
 
-//     for (let i = 0; i < rows-2; i++) {
-//         const row = document.createElement('tr');
-        
-//         for (let j = 0; j < cols-1; j++) {
-//             const cell = document.createElement('td');
-//             row.appendChild(cell);
-//         }
-        
-//         tableLeft.appendChild(row);
-//     }
-//     backgroundContainerLeft.appendChild(tableLeft);
-// }
-// createTableLeft();
+function setGame(){
+    levelName.textContent = gameState.theme;
+    createTable();
+    createGroceryList(gameState.list);
+}
+setGame();
 
 
-const groceryMap = assignRandomPositions(items, rows, cols)
-
-// place items on the shelves
 let isDragging = false;
-groceryMap.forEach(item => {
-    placeOnShelf(item)
-});
-
 function placeOnShelf(item){
+    const table = document.querySelector('.main-table')
     if (!item || !item.item || item.row === undefined || item.col === undefined) {
         console.log('missing item:', item);
         return;
@@ -217,20 +216,34 @@ function checkAllShelves(){
     shelves.forEach(shelf => {
         if(shelf.classList.contains('completed')){ sorted++; }
     });
-    if(sorted === groceryList.length/3){
+    if(sorted === gameState.list.length/3){
         // console.log('you win!');
-        document.querySelector('.win-msg').classList.remove('hidden')
-        document.querySelector('.moves-count').textContent+=numberOfMoves;
-        document.querySelector('.time').textContent = document.querySelector('.timer').textContent;
-        stopTimer();
+        winLevel();
     }
+}
+
+function winLevel(){
+    winPopup.classList.remove('hidden')
+    document.querySelector('.moves-count').textContent = `moves: ${numberOfMoves}`;
+    document.querySelector('.time').textContent = document.querySelector('.timer').textContent;
+    stopTimer();
 }
 
 const reloadButton = document.querySelector('.play-button');
 reloadButton.addEventListener('click', () =>{
-    location.reload();
-});
+    // location.reload();
 
+    // create new level
+    gameState.theme = 'potions';
+    gameState.level++;
+    gameState.rows = 5;
+    gameState.list = potionList;
+    setGame();
+
+    //remove win popup
+    winPopup.classList.add('hidden');
+
+});
 
 // --------------------------------------
 // |              timer                 |
@@ -245,6 +258,8 @@ pauseButton.addEventListener('click', () => {
     stopTimer();
     pauseButton.disabled = true;
     resumeButton.disabled = false;
+    document.querySelector('.main-table').remove();
+
 });
 
 resumeButton.addEventListener('click', () => {
