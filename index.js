@@ -240,10 +240,13 @@ reloadButton.addEventListener('click', () =>{
     gameState.list = potionList;
     items = []
     setGame();
-
+    
     //remove win popup
+    numberOfMoves = 0;
     winPopup.classList.add('hidden');
 
+    resetTimer();
+    startTimer();
 });
 
 // --------------------------------------
