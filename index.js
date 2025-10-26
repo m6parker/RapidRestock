@@ -20,13 +20,22 @@ const cakeList = [
     'cake4','cake4','cake4',
     'cake5','cake5','cake5',
     'cake6','cake6','cake6',
+    'cake7','cake7','cake7',
 ];
 
 const potionList = [
-    'green_one','green_one','green_one',
-    'green_two','green_two','green_two',
-    'pink_one','pink_one','pink_one',
-    'orange_one','orange_one','orange_one'
+    // 'green_one','green_one','green_one',
+    // 'green_two','green_two','green_two',
+    // 'pink_one','pink_one','pink_one',
+    // 'orange_one','orange_one','orange_one'
+    'potion1','potion1','potion1',
+    'potion2','potion2','potion2',
+    'potion3','potion3','potion3',
+    'potion4','potion4','potion4',
+    'potion5','potion5','potion5',
+    'potion6','potion6','potion6',
+    'potion7','potion7','potion7',
+    'potion8','potion8','potion8',
 ];
 
 const testList = [
@@ -248,7 +257,7 @@ function winLevel(){
     stopTimer();
 }
 
-const reloadButton = document.querySelector('.play-button');
+const reloadButton = document.querySelector('.play-button'); // next level button
 reloadButton.addEventListener('click', () =>{
     // location.reload();
 
