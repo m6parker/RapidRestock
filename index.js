@@ -196,6 +196,14 @@ document.addEventListener('mousemove', function(e) {
     e.preventDefault();
 
     if(isDragging){
+        // document.querySelectorAll('td').forEach(cell => {
+        //     cell.classList.remove('highlighted')
+        //     console.log('highlighting ', cell)
+        // })
+        const cell = document.elementFromPoint(e.clientX, e.clientY).closest('td');
+        cell.classList.add('highlighted');
+
+        // enlarged image follows the mouse
         draggingImage.style.left = (e.clientX - DRAGGING_DISTANCE) + 'px';
         draggingImage.style.top = (e.clientY - DRAGGING_DISTANCE) + 'px';
     }

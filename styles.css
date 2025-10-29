@@ -45,6 +45,10 @@ table td{
     background-size: cover;
 }
 
+td.highlighted{
+    border: 10px solid red;
+}
+
 table.themeTwo td.themeTwo{
     background-image: url('img/wood1.png');
     background-repeat: no-repeat;
