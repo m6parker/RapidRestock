@@ -4,6 +4,7 @@ const backgroundContainerRight = document.querySelector('.right-shelf-container'
 const draggingImage = document.querySelector('.dragging-image');
 const levelName = document.querySelector('.level-name');
 const winPopup = document.querySelector('.win-msg');
+// const table = document.querySelector('.main-table')
 const DRAGGING_DISTANCE = 100;
 
 let isPaused = false;
@@ -13,86 +14,53 @@ let itemInHand = {};
 let originalItem = {};
 let level = 1;
 
-const cakeList = [
-    'cake1','cake1','cake1',
-    'cake2','cake2','cake2',
-    'cake3','cake3','cake3',
-    'cake4','cake4','cake4',
-    'cake5','cake5','cake5',
-    'cake6','cake6','cake6',
-    'cake7','cake7','cake7',
-];
+// a map of stores and how many items they have (dirName, fileCount)
+const stores = new Map([
+    ['cakes', 8],
+    ['deserts', 18]
+]);
 
-const potionList = [
-    // 'green_one','green_one','green_one',
-    // 'green_two','green_two','green_two',
-    // 'pink_one','pink_one','pink_one',
-    // 'orange_one','orange_one','orange_one'
-    'potion1','potion1','potion1',
-    'potion2','potion2','potion2',
-    'potion3','potion3','potion3',
-    'potion4','potion4','potion4',
-    'potion5','potion5','potion5',
-    'potion6','potion6','potion6',
-    'potion7','potion7','potion7',
-    'potion8','potion8','potion8',
-];
-
-const testList = [
-    'red', 'red', 'red', 
-    'green', 'green', 'green', 
-    'blue', 'blue', 'blue',
-    'yellow','yellow','yellow',
-    'pink', 'pink', 'pink',
-    'purple','purple','purple',
-    'orange', 'orange', 'orange',
-    'brown', 'brown', 'brown',
-    'white', 'white', 'white'
-];
-
-// name of directory containing images - also displayed above shelf
-const themes = [
-    'cakes',
-    'potions',
-    'tests',
-];
-
-// which filenames to chose for images
-const imageLists = [
-    cakeList,
-    potionList,
-    testList
-]
+const storesList = Array.from(stores.keys());
+const itemsCount = Array.from(stores.values());
 
 // controlling levels
 let gameState = {
     level: level,
     rows: 3,
     cols: 3,
-    theme: themes[level-1],
-    list: cakeList
+    store: stores.entries().next().value[0]
 };
 
-function createGroceryList(groceryList){
-    // create each item image
-    groceryList.forEach(item => {
-        const image = document.createElement('img');
-        image.src = `img/${gameState.theme}/${item}.png`;
-        image.className = 'grocery-item';
-        items.push({item, row: 0, col: 0})
-    });
+function createItems(storeName){
+    // console.log(items)
+    const numOfItems = stores.get(storeName);
+    const imagesPath = `img/${storeName}/`;
 
-    // assign items to random row/col and place on the shelves
-    const groceryMap = assignRandomPositions(items, gameState.rows, gameState.cols)
-    groceryMap.forEach(item => {
+    //loop thru each item inthe store
+    for(let i = 1; i < numOfItems; i++){
+        //create images using each path
+        const itemName = `item (${i})`;
+        const image = document.createElement('img');
+        image.src = `${imagesPath}${itemName}.png`;
+
+        //add them to the objects list to assign random positions
+        image.className = 'grocery-item';
+        items.push({name:itemName, image:image, row: 0, col: 0})
+        items = assignRandomPositions(items, gameState.rows, gameState.cols)
+    }
+
+    // put each item on the shelf in the store
+    items.forEach(item => {
         placeOnShelf(item)
     });
+    // console.log(items)
 }
 
 function assignRandomPositions(items, maxRows, maxCols) {
     if (items.length > maxCols * maxRows * 3) {
         return null;
     }
+    // const MaxNumOfItems = Math.min(stores.get(storeName), maxCols * maxRows * 3); todo - limit number of items per shelf
 
     // allows three items per shelf
     const positionCounts = {};
@@ -116,6 +84,7 @@ function createTable(){
     //remove old table
     container.firstChild?.remove();
     
+    //create table based off gamestates rows and cols
     const table = document.createElement('table');
     table.className = 'main-table';
     for (let i = 0; i < gameState.rows; i++) {
@@ -136,64 +105,72 @@ function createTable(){
 //                  Start Game                      ||
 //----------------------------------------------------
 
-function setGame(){
-    levelName.textContent = gameState.theme;
+function setGame(gameState){
+    levelName.textContent = gameState.store;
     createTable();
-    createGroceryList(gameState.list);
+    createItems(gameState.store)
+    createItems(gameState.store)
+    createItems(gameState.store)
+    document.querySelectorAll('td').forEach(td => checkRoomOnShelf(td));
 }
-setGame();
+setGame(gameState);
 
 
 let isDragging = false;
 function placeOnShelf(item){
     const table = document.querySelector('.main-table')
-    if (!item || !item.item || item.row === undefined || item.col === undefined) {
+    if (!item || !item.image || item.row === undefined || item.col === undefined) {
         console.log('missing item:', item);
         return;
     }
+
+    //get the item's random posisitons
     const row = table.rows[item.row];
     const cell = row.cells[item.col];
-    if (cell.classList.contains('full') || cell.classList.contains('completed')) {
-        // Revert to original position
-        item.row = originalItem.row;
-        item.col = originalItem.col;
-    }
-    const image = document.createElement('img');
-    image.src = `img/${gameState.theme}/${item.item}.png`;
-    image.className = 'grocery-item';
-    cell.appendChild(image)
 
-    image.addEventListener('mousedown', function(e) {
-        if (isPaused) return;
+    //add item image to the shelf
+    cell.appendChild(item.image)
 
-        // allows to pick up items not on the far right of the cell
-        e.preventDefault();
-        
-        // dont let player pick up from sorted shelves
-        if(cell.classList.contains('completed') || isDragging){ return; }
-
-        document.body.style.cursor = 'grabbing';
-
-        isDragging = true;
-        itemInHand = item;
-        //save item location if it needs to be sent back
-        originalItem = {...item}
-        draggingImage.classList.remove('hidden');
-        draggingImage.src = `img/${gameState.theme}/${itemInHand.item}.png`;
-        draggingImage.style.cursor = 'grabbing';
-        draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
-        draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
-        this.remove();
-    });
+    item.image.addEventListener('mousedown', function(e){ handleItemPickup(e, item, cell) });
 }
+
+function handleItemPickup(e, item, cell){
+    if (isPaused) return;
+
+    // allows to pick up items not on the far right of the cell
+    e.preventDefault();
+
+    // dont let player pick up from sorted shelves
+    if(cell.classList.contains('completed') || isDragging){ return; }
+
+    document.body.style.cursor = 'grabbing';
+
+    isDragging = true;
+
+    //save item location if it needs to be sent back
+    originalItem = {...item};
+    itemInHand = item;
+    console.log(item, originalItem, itemInHand)
+
+    draggingImage.classList.remove('hidden');
+    draggingImage.src = item.image.src;
+    draggingImage.style.cursor = 'grabbing';
+    draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
+    draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
+    // this.remove();
+    item.image.remove();
+};
 
 document.addEventListener('mouseup', function(e) {
     if (!isDragging) return;
+
     isDragging = false;
     draggingImage.classList.add('hidden');
     document.body.style.cursor = '';
+
     const cell = document.elementFromPoint(e.clientX, e.clientY).closest('td');
-    checkRoomOnShelf(cell)
+    // checkRoomOnShelf(cell)
+
     if (cell && !cell.classList.contains('full') && !cell.classList.contains('completed')) {
         itemInHand.row = parseInt(cell.parentNode.rowIndex);
         itemInHand.col = cell.cellIndex;
@@ -202,9 +179,12 @@ document.addEventListener('mouseup', function(e) {
         numberOfMoves++;
     } else {
         //return to original position
+        console.log("SPOT IS TAKEN")
         placeOnShelf(originalItem);
     }
+    checkRoomOnShelf(cell)
     itemInHand = {};
+    originalItem = {};
 });
 
 document.addEventListener('mousemove', function(e) {
@@ -218,7 +198,8 @@ document.addEventListener('mousemove', function(e) {
 
 function checkRoomOnShelf(shelf){
     if(!shelf) return;
-    if(shelf.childElementCount === 3){
+    // console.log(shelf)
+    if(shelf.childElementCount > 2){
         shelf.classList.add('full')
         checkSorted(shelf)
     }else{
@@ -240,8 +221,7 @@ function checkAllShelves(){
     shelves.forEach(shelf => {
         if(shelf.classList.contains('completed')){ sorted++; }
     });
-    if(sorted === gameState.list.length/3){
-        // console.log('you win!');
+    if(sorted === itemsCount[level-1].length){
         winLevel();
     }
 }
@@ -257,20 +237,21 @@ function winLevel(){
     stopTimer();
 }
 
-const reloadButton = document.querySelector('.play-button'); // next level button
-reloadButton.addEventListener('click', () =>{
+const nextLevelButton = document.querySelector('.play-button'); // next level button
+nextLevelButton.addEventListener('click', () => {
     // location.reload();
 
     // create new level
     gameState.level++;
-    gameState.theme = themes[gameState.level-1];
-    gameState.rows = 5;
-    gameState.list = imageLists[gameState.level-1];
-    items = []
+    gameState.rows = gameState.rows+2;
+    gameState.cols = gameState.cols+1;
+    items = [];
+    gameState.store = storesList[gameState.level-1];
+console.log(gameState,storesList)
 
     // todo: create game completed popup
-    if(gameState.level > themes.length){ location.reload(); } //for continuous play
-    setGame();
+    if(gameState.level > stores.length){ location.reload(); } //for continuous play
+    setGame(gameState);
     
     //remove win popup
     numberOfMoves = 0;
