@@ -108,9 +108,9 @@ function createTable(){
 function setGame(gameState){
     // levelName.textContent = gameState.store;
     levelName.innerHTML = `
-        <img src="img/signs/${gameState.store} (2).png">
-        <img src="img/signs/${gameState.store} (1).png">
-        <img src="img/signs/${gameState.store} (3).png">
+        <img src="img/signs/${gameState.store} (2).png" alt="">
+        <img src="img/signs/${gameState.store} (1).png" alt="">
+        <img src="img/signs/${gameState.store} (3).png" alt="">
     `;
     createTable();
     createItems(gameState.store)

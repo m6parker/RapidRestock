@@ -25,15 +25,15 @@ img{
 }
 
 .grocery-item{
-    height: 120px;
+    height: auto;
     width: 100px;
 }
 
 .dragging-image{
     position: absolute;
     pointer-events: none;
-    height: 200px;
-    width: 160px;
+    height: auto;
+    width: 200px;
     z-index: 9999;
 }
 
@@ -49,11 +49,11 @@ table.themeTwo td.themeTwo{
     background-image: url('img/wood1.png');
     background-repeat: no-repeat;
     background-size: cover;
-    border: 7px solid rgb(108 72 54);
+    border: 11px solid rgb(108 72 54);
 }
     
 table, td{
-    border: 7px solid rgb(146 125 85);
+    border: 11px solid rgb(146 125 85);
     border-collapse: collapse;
     margin: 10px;
 }
