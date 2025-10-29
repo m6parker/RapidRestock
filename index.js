@@ -234,7 +234,7 @@ function checkAllShelves(){
     shelves.forEach(shelf => {
         if(shelf.classList.contains('completed')){ sorted++; }
     });
-    if(sorted === itemsCount[level-1].length){
+    if(sorted === itemsCount[level-1]-1){
         winLevel();
     }
 }
