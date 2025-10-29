@@ -70,7 +70,7 @@ table, td{
     color: white;
     padding: 5px;
 }
-
+/* 
 .level-name{
     color: white;
     text-align: center;
@@ -80,6 +80,18 @@ table, td{
     background-color: rgba(0, 0, 0, 0.141);
     border-radius: 15px;
     margin: 10px;
+} */
+
+.level-name{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    width: 100vw;
+}
+
+.level-name>img{
+    width: auto;
+    height: 220px;
 }
 
 button{
