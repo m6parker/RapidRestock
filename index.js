@@ -12,7 +12,9 @@ let numberOfMoves = 0;
 let items = [];
 let itemInHand = {};
 let originalItem = {};
+let originalCell;
 let level = 1;
+let shelves = [];
 
 // a map of stores and how many items they have (dirName, fileCount)
 const stores = new Map([
@@ -45,40 +47,39 @@ function createItems(storeName){
 
         //add them to the objects list to assign random positions
         image.className = 'grocery-item';
-        items.push({name:itemName, image:image, row: 0, col: 0})
+        items.push({name:itemName, image:image, row: 0, col: 0, slot: 0})
         items = assignRandomPositions(items, gameState.rows, gameState.cols)
     }
+    console.log('items', items)
 
     // put each item on the shelf in the store
     items.forEach(item => {
         placeOnShelf(item)
     });
-    // console.log(items)
 }
 
-function assignRandomPositions(items, maxRows, maxCols) {
-    if (items.length > maxCols * maxRows * 3) {
+function assignRandomPositions(items, maxRows, maxCols, maxPerShelf = 3) {
+    if (items.length > maxCols * maxRows * maxPerShelf) {
+        console.warn("Not enough slots for all items.");
         return null;
     }
-    // const MaxNumOfItems = Math.min(stores.get(storeName), maxCols * maxRows * 3); todo - limit number of items per shelf
 
-    // allows three items per shelf
-    const positionCounts = {};
+    const usedPositions = new Set();
 
     return items.map(item => {
-        let col;
-        let row;
-        let position;
+        let col, row, slot, position;
         do {
             col = Math.floor(Math.random() * maxCols);
             row = Math.floor(Math.random() * maxRows);
-            position = `${col},${row}`;
-        } while ((positionCounts[position] || 0) >= 3);
+            slot = Math.floor(Math.random() * maxPerShelf);
+            position = `${col},${row},${slot}`;
+        } while (usedPositions.has(position));
 
-        positionCounts[position] = (positionCounts[position] || 0) + 1;
-        return { ...item, col, row };
+        usedPositions.add(position);
+        return { ...item, col, row, slot };
     });
 }
+
 
 function createTable(){
     //remove old table
@@ -94,6 +95,29 @@ function createTable(){
             const cell = document.createElement('td');
             cell.className = 'mainCell';
             row.appendChild(cell);
+
+            const slotContainer = document.createElement('div');
+            slotContainer.className = 'slot-container';
+            cell.appendChild(slotContainer);
+
+            // each cell of the table can fit 3 items
+            for(let k=0; k<3; k++){
+                const slot = document.createElement('div');
+                slot.className = 'slot empty';
+                slotContainer.appendChild(slot)
+                const id = `${i}${j}${k}`;
+                slot.id = id;
+                const shelf = {slot, id, hovered:false};
+
+                shelves.push(shelf)
+                //getting slot on hover
+                slot.addEventListener('mouseover', () => {
+                    shelf.hovered = true;
+                })
+                slot.addEventListener('mouseout', () => {
+                    shelf.hovered = false;
+                })
+            }
         }
         
         table.appendChild(row);
@@ -116,7 +140,7 @@ function setGame(gameState){
     createItems(gameState.store)
     createItems(gameState.store)
     createItems(gameState.store)
-    document.querySelectorAll('td').forEach(td => checkRoomOnShelf(td));
+    checkSlots()
 }
 setGame(gameState);
 
@@ -128,43 +152,41 @@ function placeOnShelf(item){
         console.log('missing item:', item);
         return;
     }
-
+    
     //get the item's random posisitons
     const row = table.rows[item.row];
     const cell = row.cells[item.col];
+    const slot = cell.children[0].children[item.slot] || item.slot;
 
-    //add item image to the shelf
-    cell.appendChild(item.image)
-
-    item.image.addEventListener('mousedown', function(e){ handleItemPickup(e, item, cell) });
+    //add item image to the slot on the shelf
+    slot.appendChild(item.image)
+    slot.classList.remove('empty');
+    
+    item.image.addEventListener('mousedown', (e) => { 
+        if (isPaused) return;
+        // allows to pick up items not on the far right of the cell
+        e.preventDefault();
+        
+        // dont let player pick up from sorted shelves
+        if(cell.classList.contains('completed') || isDragging){ return; }
+        document.body.style.cursor = 'grabbing';
+        isDragging = true;
+        
+        //save item location if it needs to be sent back
+        originalItem = item;
+        originalCell = cell;
+        itemInHand = item;
+        console.log('item', item, 'original', originalItem, 'itemInHand', itemInHand)
+        
+        draggingImage.classList.remove('hidden');
+        draggingImage.src = item.image.src;
+        draggingImage.style.cursor = 'grabbing';
+        draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
+        draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
+        item.image.remove();
+    });
 }
 
-function handleItemPickup(e, item, cell){
-    if (isPaused) return;
-
-    // allows to pick up items not on the far right of the cell
-    e.preventDefault();
-
-    // dont let player pick up from sorted shelves
-    if(cell.classList.contains('completed') || isDragging){ return; }
-
-    document.body.style.cursor = 'grabbing';
-
-    isDragging = true;
-
-    //save item location if it needs to be sent back
-    originalItem = {...item};
-    itemInHand = item;
-    console.log(item, originalItem, itemInHand)
-
-    draggingImage.classList.remove('hidden');
-    draggingImage.src = item.image.src;
-    draggingImage.style.cursor = 'grabbing';
-    draggingImage.style.left = e.clientX - DRAGGING_DISTANCE + 'px';
-    draggingImage.style.top = e.clientY - DRAGGING_DISTANCE + 'px';
-    // this.remove();
-    item.image.remove();
-};
 
 document.addEventListener('mouseup', function(e) {
     if (!isDragging) return;
@@ -172,36 +194,37 @@ document.addEventListener('mouseup', function(e) {
     isDragging = false;
     draggingImage.classList.add('hidden');
     document.body.style.cursor = '';
+    let selectedSlot;
+    shelves.forEach(shelf => {if(shelf.hovered){ selectedSlot = shelf.slot;}} );
 
-    const cell = document.elementFromPoint(e.clientX, e.clientY).closest('td');
-    // checkRoomOnShelf(cell)
-
-    if (cell && !cell.classList.contains('full') && !cell.classList.contains('completed')) {
-        itemInHand.row = parseInt(cell.parentNode.rowIndex);
-        itemInHand.col = cell.cellIndex;
-        placeOnShelf(itemInHand);
-        checkSorted(cell)
+    if (slotHasSpace(selectedSlot)) {
+        itemInHand.slot = selectedSlot;
+        placeOnShelf(itemInHand, selectedSlot.id);
+        // checkSorted(cell)
         numberOfMoves++;
     } else {
         //return to original position
         console.log("SPOT IS TAKEN")
-        placeOnShelf(originalItem);
+        placeOnShelf(item);
     }
-    checkRoomOnShelf(cell)
+    checkSlots()
     itemInHand = {};
     originalItem = {};
+    shelves.forEach(shelf => shelf.slot.classList.remove('highlighted'));
 });
 
 document.addEventListener('mousemove', function(e) {
     e.preventDefault();
 
     if(isDragging){
-        // document.querySelectorAll('td').forEach(cell => {
-        //     cell.classList.remove('highlighted')
-        //     console.log('highlighting ', cell)
-        // })
-        const cell = document.elementFromPoint(e.clientX, e.clientY).closest('td');
-        cell.classList.add('highlighted');
+        shelves.forEach(shelf => {
+            if(shelf.hovered){
+                shelf.slot.classList.add('highlighted')
+            }else{
+                shelf.slot.classList.remove('highlighted')
+            }
+
+        });
 
         // enlarged image follows the mouse
         draggingImage.style.left = (e.clientX - DRAGGING_DISTANCE) + 'px';
@@ -209,15 +232,19 @@ document.addEventListener('mousemove', function(e) {
     }
 });
 
-function checkRoomOnShelf(shelf){
-    if(!shelf) return;
-    // console.log(shelf)
-    if(shelf.childElementCount > 2){
-        shelf.classList.add('full')
-        checkSorted(shelf)
-    }else{
-        shelf.classList.remove('full')
-    }
+function slotHasSpace(slot){
+    return slot.classList.contains('empty');
+}
+
+function checkSlots(){
+    const slots = document.querySelectorAll('.slot');
+    slots.forEach(slot => {
+        if(slot.childElementCount === 0){
+            slot.classList.add('empty')
+        }else{
+            slot.classList.remove('empty')
+        }
+    });
 }
 
 function checkSorted(shelf){

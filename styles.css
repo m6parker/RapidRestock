@@ -45,8 +45,21 @@ table td{
     background-size: cover;
 }
 
-td.highlighted{
-    border: 10px solid red;
+.slot-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.slot{
+    height: 100px;
+    width: 100px;   
+    border: 5px solid transparent;
+}
+
+div.highlighted{
+    border: 5px solid white;
+    border-collapse: collapse;
 }
 
 table.themeTwo td.themeTwo{
