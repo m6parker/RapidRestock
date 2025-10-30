@@ -4,7 +4,6 @@ const backgroundContainerRight = document.querySelector('.right-shelf-container'
 const draggingImage = document.querySelector('.dragging-image');
 const levelName = document.querySelector('.level-name');
 const winPopup = document.querySelector('.win-msg');
-// const table = document.querySelector('.main-table')
 const DRAGGING_DISTANCE = 100;
 
 let isPaused = false;
@@ -12,7 +11,6 @@ let numberOfMoves = 0;
 let items = [];
 let itemInHand = {};
 let originalItem = {};
-let originalCell;
 let level = 1;
 let shelves = [];
 
@@ -93,7 +91,7 @@ function createTable(){
         
         for (let j = 0; j < gameState.cols; j++) {
             const cell = document.createElement('td');
-            cell.className = 'mainCell';
+            cell.className = 'shelf';
             row.appendChild(cell);
 
             const slotContainer = document.createElement('div');
@@ -174,7 +172,6 @@ function placeOnShelf(item){
         
         //save item location if it needs to be sent back
         originalItem = item;
-        originalCell = cell;
         itemInHand = item;
         console.log('item', item, 'original', originalItem, 'itemInHand', itemInHand)
         
@@ -194,18 +191,18 @@ document.addEventListener('mouseup', function(e) {
     isDragging = false;
     draggingImage.classList.add('hidden');
     document.body.style.cursor = '';
-    let selectedSlot;
+    let selectedSlot = null;
     shelves.forEach(shelf => {if(shelf.hovered){ selectedSlot = shelf.slot;}} );
 
-    if (slotHasSpace(selectedSlot)) {
+    if (selectedSlot && slotHasSpace(selectedSlot)) {
         itemInHand.slot = selectedSlot;
-        placeOnShelf(itemInHand, selectedSlot.id);
-        // checkSorted(cell)
+        placeOnShelf(itemInHand);
+        checkSorted(selectedSlot.id)
         numberOfMoves++;
     } else {
         //return to original position
         console.log("SPOT IS TAKEN")
-        placeOnShelf(item);
+        placeOnShelf(originalItem);
     }
     checkSlots()
     itemInHand = {};
@@ -247,20 +244,32 @@ function checkSlots(){
     });
 }
 
-function checkSorted(shelf){
-    const firstItem = shelf.children[0];
-    if(shelf.children.length === 3 && Array.from(shelf.children).every(item => item.src === firstItem.src)){
-        shelf.classList.add('completed');
+function checkSorted(posisitons){
+    const table = document.querySelector('.main-table')
+    const position = posisitons.split('');
+    console.log(posisitons)
+    const row = position[0];
+    const col = position[1];
+    let allMatch = true;
+    const cell = Array.from(table.rows[row].cells[col].children[0].children);
+    if(cell[0]?.children[0]?.src !== cell[1]?.children[0]?.src) allMatch = false;
+    if(cell[0]?.children[0]?.src !== cell[2]?.children[0]?.src) allMatch = false;
+    if(cell[1]?.children[0]?.src !== cell[2]?.children[0]?.src) allMatch = false;
+    if(allMatch){
+        table.rows[row].cells[col].children[0].classList.add('completed')
+        //check all shelves if the game is finiahed
         checkAllShelves();
     }
+    return allMatch;
 }
 
 function checkAllShelves(){
     let sorted = 0;
-    const shelves = document.querySelectorAll('.mainCell');
+    const shelves = document.querySelectorAll('.slot-container');
     shelves.forEach(shelf => {
         if(shelf.classList.contains('completed')){ sorted++; }
     });
+    console.log(sorted, itemsCount[level-1])
     if(sorted === itemsCount[level-1]-1){
         winLevel();
     }
